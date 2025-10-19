@@ -1,0 +1,118 @@
+﻿@model MedicalAnalyzer.Models.MedicalInputModel
+@{
+    ViewData["Title"] = "Medical Analyzer";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">🧠 Medical Analyzer Uygulamasına Hoş Geldiniz</h2>
+    <p class="text-center text-muted mb-5">
+        Bu uygulama, medikal görüntü ve verileri analiz etmek için geliştirilmiştir. Lütfen ilgili girdileri sağlayınız.
+    </p>
+
+    <!-- 🔧 Controller açıkça belirtildi -->
+    <form asp-controller="Home" asp-action="Index" method="post" enctype="multipart/form-data">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="form-label">3D Görüntü (nifti dosyası)</label>
+                <input asp-for="ThreeDImage" type="file" class="form-control" accept=".nii,.nii.gz" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Önizleme</label>
+                <img id="preview3D" src="#" alt="3D Preview" class="img-thumbnail d-none" />
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="form-label">Kesit -16</label>
+                <input asp-for="SectionMinus16" type="file" class="form-control" accept="image/*" />
+                <img id="previewMinus16" class="img-fluid mt-2 d-none" style="width:224px;height:224px;" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Kesit 00</label>
+                <input asp-for="Section00" type="file" class="form-control" accept="image/*" />
+                <img id="preview00" class="img-fluid mt-2 d-none" style="width:224px;height:224px;" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Kesit 20</label>
+                <input asp-for="Section20" type="file" class="form-control" accept="image/*" />
+                <img id="preview20" class="img-fluid mt-2 d-none" style="width:224px;height:224px;" />
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label asp-for="NumericInput1" class="form-label"></label>
+                <input asp-for="NumericInput1" type="number" step="any" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="NumericInput2" class="form-label"></label>
+                <input asp-for="NumericInput2" type="number" step="any" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="TextInput1" class="form-label"></label>
+                <input asp-for="TextInput1" type="text" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="TextInput2" class="form-label"></label>
+                <input asp-for="TextInput2" type="text" class="form-control" />
+            </div>
+        </div>
+
+        <div class="text-end mb-4">
+            <button type="submit" class="btn btn-primary">🚀 Çalıştır</button>
+        </div>
+    </form>
+
+    @if (ViewBag.Outputs != null)
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">Analiz Sonuçları</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    @foreach (var output in ViewBag.Outputs as List<string>)
+                    {
+                        <li class="list-group-item">
+                            <strong>@output.Split(':')[0]:</strong>
+                            @output.Substring(output.IndexOf(':') + 1).Trim()
+                        </li>
+                    }
+                </ul>
+
+                @if (ViewBag.Section00Image != null)
+                {
+                    <div class="mt-4">
+                        <h5>Kesit 00 Görseli:</h5>
+                        <img src="@ViewBag.Section00Image" alt="Section00 Image" style="width:224px;height:224px;" class="img-thumbnail" />
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    function previewImage(inputId, imgId) {
+        const input = document.getElementById(inputId);
+        const img = document.getElementById(imgId);
+        if (!input || !img) return;
+
+        input.addEventListener('change', function () {
+            const file = input.files[0];
+            if (file && file.type.startsWith("image")) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                    img.classList.remove("d-none");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    previewImage("SectionMinus16", "previewMinus16");
+    previewImage("Section00", "preview00");
+    previewImage("Section20", "preview20");
+</script>
