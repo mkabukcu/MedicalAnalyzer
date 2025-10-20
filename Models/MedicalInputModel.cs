@@ -14,5 +14,9 @@ namespace MedicalAnalyzer.Models
 
         public string? TextInput1 { get; set; }
         public string? TextInput2 { get; set; }
-    }
+
+
+
+        public List<string>? Outputs { get; set; }
+    } 
 }

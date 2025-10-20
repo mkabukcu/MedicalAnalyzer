@@ -7,12 +7,12 @@ namespace MedicalAnalyzer.Controllers
     public class HomeController : Controller
     {
         private readonly IWebHostEnvironment _env;
-        private readonly AnalysisService _analysisService;
+        private AnalysisService _analysisService;
 
-        public HomeController(IWebHostEnvironment env)
+        public HomeController(IWebHostEnvironment env, AnalysisService analysisService)
         {
             _env = env;
-            _analysisService = new AnalysisService();
+            _analysisService = analysisService;
         }
 
         [HttpGet]
@@ -53,6 +53,8 @@ namespace MedicalAnalyzer.Controllers
                 model.TextInput2
             );
 
+            model.Outputs = results;
+
             ViewBag.Outputs = results;
 
             // Section00 için gösterim linki (varsa)
@@ -78,5 +80,29 @@ namespace MedicalAnalyzer.Controllers
             using var stream = new FileStream(filePath, FileMode.Create);
             file.CopyTo(stream);
         }
+
+        [HttpGet]
+        public IActionResult Analyze()
+        {
+            return View(new List<string>()); // Sayfa boş açılır
+        }
+
+        [HttpPost]
+        public IActionResult Analyze(IFormFile? threeDImage,
+                                     IFormFile? sectionMinus16,
+                                     IFormFile? section00,
+                                     IFormFile? section20,
+                                     double? num1, double? num2,
+                                     string? text1, string? text2)
+        {
+            var results = _analysisService.AnalyzeData(
+                threeDImage, sectionMinus16, section00, section20, num1, num2, text1, text2);
+
+            return View(results); // results bir List<string>
+        }
+
+
+
+
     }
 }
