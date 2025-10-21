@@ -1,71 +1,99 @@
-@model List<string>
+@model MedicalAnalyzer.Models.AnalysisOutputModel
 
 @{
-    ViewData["Title"] = "Veri Analizi";
+    ViewData["Title"] = "Medical Analyzer";
 }
 
 <div class="container py-5">
-    <h2 class="mb-4 text-center">
+
+    <h2 class="text-center mb-4">
         <i class="bi bi-activity text-primary"></i> Medical Analyzer - Sonuçlar
     </h2>
 
-    <!-- Analiz Formu -->
-    <form asp-action="Analyze" method="post" enctype="multipart/form-data" class="border rounded p-4 mb-5 shadow-sm bg-light">
+    <!-- Analiz Girdileri -->
+    <form asp-action="Index" method="get" enctype="multipart/form-data" class="border rounded p-4 mb-5 shadow-sm bg-light">
+        
         <h5 class="mb-3 text-secondary">🔍 Girdi Verileri</h5>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">3D Görüntü</label>
-                <input type="file" name="threeDImage" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">2D Kesit -16</label>
-                <input type="file" name="sectionMinus16" class="form-control" />
-            </div>
+
+        <div class="row mb-4">
+            @if (Model != null && Model.ThreeDImagePath != null )
+            {
+                <div class="col-md-4">
+                    <label class="form-label">3D Görüntü (nifti dosyası)</label>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Önizleme</label>
+                    <img id="preview3D" src="#" alt="3D Preview" class="img-thumbnail d-none" />
+                </div>                
+            }
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">2D Kesit 00</label>
-                <input type="file" name="section00" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">2D Kesit +20</label>
-                <input type="file" name="section20" class="form-control" />
-            </div>
+        <div class="row mb-4">
+            @if (Model != null && Model.SectionMinus16Path != null )
+            {
+                <div class="col-md-4">
+                    <label class="form-label">Kesit -16</label>
+                    <img src=@Model.SectionMinus16Path alt="SectionMinus16 Image" class="img-fluid mt-2" style="width:224px;height:224px;" />
+                </div>                
+            }
+            @if (Model != null && Model.Section00Path != null )
+            {
+                <div class="col-md-4">
+                    <label class="form-label">Kesit 00</label>
+                    <img src=@Model.Section00Path alt="SectionMinus16 Image" class="img-fluid mt-2" style="width:224px;height:224px;" />
+                </div>                  
+            }
+            @if (Model != null && Model.Section20Path != null )
+            {
+                 <div class="col-md-4">
+                    <label class="form-label">Kesit 20</label>
+                    <img src=@Model.Section20Path alt="SectionMinus16 Image" class="img-fluid mt-2" style="width:224px;height:224px;" />
+                </div>                 
+            }
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Sayısal Girdi 1</label>
-                <input type="number" step="any" name="num1" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Sayısal Girdi 2</label>
-                <input type="number" step="any" name="num2" class="form-control" />
-            </div>
+        <div class="row mb-4">
+            @if (Model != null && Model.NumericInput1 != null )
+            {
+                <div class="col-md-4">
+                    <label asp-for="@Model.NumericInput1" class="form-label">ApoE</label>
+                    <input asp-for="@Model.NumericInput1" type="number" step="any" class="form-control" />
+                </div>
+            }
+            @if (Model != null && Model.NumericInput2 != null )
+            {            
+                <div class="col-md-4">
+                    <label asp-for="@Model.NumericInput2" class="form-label">Yaş</label>
+                    <input asp-for="@Model.NumericInput2" type="number" step="any" class="form-control" />
+                </div>
+            }
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Metin Girdisi 1</label>
-                <input type="text" name="text1" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Metin Girdisi 2</label>
-                <input type="text" name="text2" class="form-control" />
-            </div>
-        </div>
+        <div class="row mb-4">
+            @if (Model != null && Model.TextInput1 != null )
+            {
+                <div class="col-md-4">
+                    <label asp-for="@Model.TextInput1" class="form-label">MMT</label>
+                    <input asp-for="@Model.TextInput1" type="text" class="form-control" />
+                </div>
+            }
+            @if (Model != null && Model.TextInput2 != null )
+            {
+                <div class="col-md-4">
+                    <label asp-for="@Model.TextInput2" class="form-label">Plazma Biyobelirteç</label>
+                    <input asp-for="@Model.TextInput2" type="text" class="form-control" />
+                </div>
+            }
+        </div>  
 
         <div class="text-center">
-            <button type="submit" class="btn btn-primary px-4">
-                <i class="bi bi-cpu"></i> Analiz Et
-            </button>
+            <button type="submit" class="btn btn-primary">🚀 Yeni Bir Analiz Yap</button>
         </div>
     </form>
 
     <!-- Analiz Sonuçları -->
-    @if (Model != null && Model.Count > 0)
+    @if (Model != null && Model.Outputs != null && Model.Outputs.Count > 0)
     {
         <div class="card shadow-sm">
             <div class="card-header bg-success text-white">
@@ -73,7 +101,7 @@
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Outputs )
                     {
                         <li class="list-group-item">
                             <span>@Html.Raw(item.Replace("\n", "<br/>"))</span>
@@ -83,10 +111,5 @@
             </div>
         </div>
     }
-    else
-    {
-        <div class="alert alert-info text-center">
-            Henüz analiz yapılmadı. Lütfen formu doldurup gönderin.
-        </div>
-    }
+
 </div>
